@@ -1,8 +1,11 @@
 import http from "node:http";
 import url from "node:url";
 import router from './routes.js';
+import dotenv from 'dotenv';
 
-const PORT = 4000;
+dotenv.config()
+
+const PORT = process.env.PORT || 4000;
 
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -13,9 +16,11 @@ const server = http.createServer(async (req, res) => {
   const handler = router[pathForHandler] && router[pathForHandler][method];
 
   if (handler) {
-    handler(req, res, query)
+    handler(req, res, query);
+  } else {
+    router.notFound(req, res);
   }
   
 });
 
-server.listen(PORT,() => console.log('\n\nserver starts'));
+server.listen(PORT,() => console.log(`\n\nserver starts on port ${PORT}`));
