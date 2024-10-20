@@ -1,3 +1,4 @@
+import { IRequestUserDto } from "interfaces/dto.js";
 import { IUser } from "interfaces/user.js";
 import {v4 as uuid} from "uuid";
 
@@ -12,10 +13,30 @@ constructor(startUsers?: IUser[]) {
   }
 }
 
-public createUser(user: Omit<IUser, 'id'>) {
+public createUser(user: IRequestUserDto) {
+
   const id = uuid();
   const userForSave = {...user, id} as IUser
-  this._setUser(userForSave)
+  this._setUser(userForSave);
+
+  return Promise.resolve(this.db.get(id));
+}
+
+public updateUser(user: IRequestUserDto, id: string) {
+
+  const userForSave = {...user, id} as IUser
+  this._setUser(userForSave);
+
+  return Promise.resolve(this.db.get(id));
+}
+
+public deleteUser(id:string) {
+  this.db.delete(id);
+  return Promise.resolve();
+}
+
+public hasUser(id: string) {
+  return this.db.has(id);
 }
 
 public getAllUsers() {
@@ -24,7 +45,7 @@ public getAllUsers() {
 }
 
 public getUser(id: string) {
-  if (id && this.db.has(id)) {
+  if (id && this.hasUser(id)) {
     return Promise.resolve(this.db.get(id));
   } else {
     return Promise.resolve(null);
